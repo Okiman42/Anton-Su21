@@ -12,6 +12,8 @@ public class Gun : MonoBehaviour
     // How far forward the muzzle is from the centre of the gun
     private float muzzleOffset;
 
+    public GameObject EmptyBullet;
+
     [Header("Magazine")]
     public GameObject round;
     public int ammunition;
@@ -40,15 +42,21 @@ public class Gun : MonoBehaviour
 
     void Start()
     {
-        muzzleOffset = GetComponent<Renderer>().bounds.extents.z;
+        muzzleOffset = EmptyBullet.transform.position.y; //GetComponent<Renderer>().bounds.extents.z;
         remainingAmmunition = ammunition;
     }
 
     void Update()
     {
+        if (Input.GetMouseButtonDown(0))
+        {
+            Shoot();
+        }
+
         switch (shootState)
         {
             case ShootState.Shooting:
+                Debug.Log("shooting");
                 // If the gun is ready to shoot again...
                 if (Time.time > nextShootTime)
                 {
@@ -77,8 +85,8 @@ public class Gun : MonoBehaviour
                 // Instantiates the round at the muzzle position
                 GameObject spawnedRound = Instantiate(
                     round,
-                    transform.position + transform.forward * muzzleOffset,
-                    transform.rotation
+                    new Vector3(EmptyBullet.transform.position.x, EmptyBullet.transform.position.y, EmptyBullet.transform.position.z) + EmptyBullet.transform.forward,
+                    EmptyBullet.transform.rotation
                 );
 
                 // Add a random variation to the round's direction
@@ -96,6 +104,7 @@ public class Gun : MonoBehaviour
             if (remainingAmmunition > 0)
             {
                 nextShootTime = Time.time + (1 / fireRate);
+                Debug.Log(nextShootTime);
                 shootState = ShootState.Shooting;
             }
             else
